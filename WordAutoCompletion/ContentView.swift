@@ -9,27 +9,70 @@ import SwiftUI
 
 struct ContentView: View {
     @ObservedObject var viewModel = ContentViewModel()
-    
+    @State var active = false
     
     var body: some View {
-        NavigationStack {
+        ScrollView {
             Section{
-                List(viewModel.searchResult, id: \.self){ contact in
+                ForEach(viewModel.selectedNames, id: \.self){ item in
+                    Text(item)
+                }
+            }
+            
+            
+            HStack {
+                 HStack {
+                     Image(systemName: "magnifyingglass").foregroundColor(.gray)
+                     TextField("Search", text: $viewModel.searchText, onEditingChanged: { editing in
+                         withAnimation {
+                             active = editing
+                         }
+                     })
+                 }
+                 .padding(7)
+                 .background(Color(white: 0.9))
+                 .cornerRadius(10)
+                 .padding(.horizontal, active ? 0 : 50)
+                 
+                 Button("Cancel") {
+                     withAnimation {
+                         active = false
+                     }
+                 }
+                 .opacity(active ? 1 : 0)
+                 .frame(width: active ? nil : 0, height: 0)
+             }
+            //.searchable(text: $viewModel.searchText, isPresented: $viewModel.isSearchPresented, prompt: "Search")
+            .autocorrectionDisabled(true)
+            .onSubmit{
+                print(viewModel.searchResult.first ?? "")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    viewModel.searchText = ""
+                }
+                viewModel.selectedNames.append(viewModel.searchResult.first?.name ?? "")
+            }
+            .listRowInsets(EdgeInsets())
+            
+            Section{
+                ForEach(viewModel.searchResult, id: \.self){ contact in
                     Text(contact.name)
                 }
-                .navigationTitle("Word Auto Completion")
-                .searchable(text: $viewModel.searchText, isPresented: $viewModel.isSearchPresented, prompt: "Search")
                 .overlay {
                     if viewModel.searchResult.isEmpty {
                         // Custom unavailable view
                         ContentUnavailableView
                             .search(text: viewModel.searchText )
                             .background(Color(UIColor.systemGroupedBackground))
-                        
                     }
                 }
+                
             }
+            
+            
         }
+        
+        
+        .navigationTitle("Test")
     }
 }
 
@@ -68,9 +111,12 @@ extension ContentView{
                 }
             }
         }
+        @Published var selectedNames: [String] = []
     }
 }
 
 #Preview {
-    ContentView()
+    NavigationStack{
+        ContentView()
+    }
 }
