@@ -7,58 +7,64 @@
 
 import SwiftUI
 
+// maybe you dont need a selectedcontacts, just use the selected property
+// NEXT STEP, TO CREATE A TEXT WITH COMPLETIONS AND NOT A LIST ()REGEX POSSIBLY
+
 struct ContentView: View {
     @ObservedObject var viewModel = ContentViewModel()
-    @State var active = false
+    @FocusState var textFieldIsFocused: Bool
     
     var body: some View {
-        ScrollView {
+        List {
+            
+            Image("test")
+                .resizable()
+                .scaledToFill()
+                .frame(height: 200)
+                .listRowInsets(EdgeInsets())
+            
+            
             Section{
-                ForEach(viewModel.selectedNames, id: \.self){ item in
-                    Text(item)
-                }
+                TextField("", text: $viewModel.searchText, prompt: Text("Test"))
+                    .onChange(of: viewModel.searchText) { _ in
+                        viewModel.updateSearchResults()
+                    }
+                    .focused($textFieldIsFocused)
+                    .autocorrectionDisabled(true)
+                    .onSubmit{
+                        textFieldIsFocused = true
+                        
+                        // move to viewcontroller
+                        if let firstResult = viewModel.searchResults.first,
+                           let index = viewModel.contacts.firstIndex(where: { $0.id == firstResult.id }) {
+                            
+                            viewModel.selectedContacts.append(firstResult)
+                            viewModel.contacts[index].selected = true
+                            viewModel.resetSearchText()
+                            
+                        }
+                    }
+            }  header: {
+                Text("Input")
+            }
+            
+            Section{
+                Text(viewModel.formattedResults)
+                
+            } header: {
+                Text("Results")
             }
             
             
-            HStack {
-                 HStack {
-                     Image(systemName: "magnifyingglass").foregroundColor(.gray)
-                     TextField("Search", text: $viewModel.searchText, onEditingChanged: { editing in
-                         withAnimation {
-                             active = editing
-                         }
-                     })
-                 }
-                 .padding(7)
-                 .background(Color(white: 0.9))
-                 .cornerRadius(10)
-                 .padding(.horizontal, active ? 0 : 50)
-                 
-                 Button("Cancel") {
-                     withAnimation {
-                         active = false
-                     }
-                 }
-                 .opacity(active ? 1 : 0)
-                 .frame(width: active ? nil : 0, height: 0)
-             }
-            //.searchable(text: $viewModel.searchText, isPresented: $viewModel.isSearchPresented, prompt: "Search")
-            .autocorrectionDisabled(true)
-            .onSubmit{
-                print(viewModel.searchResult.first ?? "")
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    viewModel.searchText = ""
-                }
-                viewModel.selectedNames.append(viewModel.searchResult.first?.name ?? "")
-            }
-            .listRowInsets(EdgeInsets())
+            
             
             Section{
-                ForEach(viewModel.searchResult, id: \.self){ contact in
+                ForEach(viewModel.searchResults, id: \.self){ contact in
                     Text(contact.name)
+                        .foregroundStyle(contact.selected == true ? Color(uiColor: .secondaryLabel) : Color(uiColor: .label))
                 }
                 .overlay {
-                    if viewModel.searchResult.isEmpty {
+                    if viewModel.searchResults.isEmpty {
                         // Custom unavailable view
                         ContentUnavailableView
                             .search(text: viewModel.searchText )
@@ -66,33 +72,43 @@ struct ContentView: View {
                     }
                 }
                 
+            } header: {
+                Text("Contacts")
             }
             
             
         }
         
         
-        .navigationTitle("Test")
+        .navigationTitle("Text Autocomplete")
     }
+        
+    
 }
 
-struct Contact: Hashable {
+struct Contact: Hashable, Comparable {
+    var id = UUID()
     var name: String
+    var selected: Bool
     
     func contains(_ query: String) -> Bool {
         return name.lowercased().contains(query.lowercased())
+    }
+    
+    static func <(lhs: Self, rhs: Self) -> Bool {
+        (lhs.selected ? 1:0) < (rhs.selected ? 1:0)
     }
 }
 
 extension Contact{
     static var samples: [Contact] {
         return [
-            Contact(name: "Rachel Green"),
-            Contact(name: "Phoebe Buffay"),
-            Contact(name: "Chandler Bing"),
-            Contact(name: "Ross Geller"),
-            Contact(name: "Monica Geller"),
-            Contact(name: "Joey Tribbiani")
+            Contact(name: "Rachel Green", selected: false),
+            Contact(name: "Phoebe Buffay", selected: false),
+            Contact(name: "Chandler Bing", selected: false),
+            Contact(name: "Ross Geller", selected: false),
+            Contact(name: "Monica Geller", selected: false),
+            Contact(name: "Joey Tribbiani", selected: false)
         ]
     }
 }
@@ -100,18 +116,55 @@ extension Contact{
 extension ContentView{
     class ContentViewModel: ObservableObject{
         @Published var searchText = ""
+        var formattedResults: String {
+            let names = selectedContacts.map { $0.name }
+            if let string = formatter.string(from: names) {
+                return string
+            } else {
+                return ""
+            }
+        }
         @Published var isSearchPresented = true
         @Published var contacts: [Contact] = Contact.samples
-        var searchResult: [Contact] {
-            if searchText.isEmpty {
-                return contacts
+        @Published var searchResults: [Contact] = []
+        @Published var selectedContacts: [Contact] = []
+        let formatter = ListFormatter()
+
+
+//        func createString(){
+//            let names = selectedContacts.map { $0.name }
+//            if let string = formatter.string(from: names) {
+//                formattedResults = string
+//            }
+//        }
+        
+        init(){
+            fetchSearchResults()
+        }
+        
+        func fetchSearchResults() {
+            searchResults = contacts
+        }
+        
+        func updateSearchResults() {
+            let query = searchText.lowercased()
+            
+            if searchText.isEmpty{
+                withAnimation(.snappy) {
+                    searchResults = contacts.sorted()
+                }
             } else {
-                return contacts.filter {
-                    $0.contains(searchText)
+                withAnimation {
+                    searchResults = contacts.filter { contact in
+                        contact.contains(query)
+                    }
                 }
             }
         }
-        @Published var selectedNames: [String] = []
+        
+        func resetSearchText() {
+            searchText = ""
+        }
     }
 }
 
