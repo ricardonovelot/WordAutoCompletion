@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ContactSearchView: View {
+struct SearchView_MvvmTag: View {
     @ObservedObject var viewModel = ContactViewModel()
     @FocusState var textFieldIsFocused: Bool
     
@@ -56,6 +56,7 @@ struct ContactSearchView: View {
                     Text("Contacts")
                 }
             }
+            
             .listSectionSpacing(.compact)
             .navigationTitle("Autocomplete Search")
             .toolbar {
@@ -93,7 +94,7 @@ extension Contact2 {
     }
 }
 
-extension ContactSearchView {
+extension SearchView_MvvmTag {
     class ContactViewModel: ObservableObject {
         @Published var searchQuery = ""
         @Published var formattedContactList = ""
@@ -107,7 +108,10 @@ extension ContactSearchView {
         func updateFormattedResults() {
             let names = selectedContacts.map { $0.name }
             if let string = listFormatter.string(from: names) {
-                formattedContactList = string
+                withAnimation {
+                    formattedContactList = string
+                }
+                
             }
         }
         
@@ -152,5 +156,5 @@ extension ContactSearchView {
 }
 
 #Preview {
-    ContactSearchView()
+    SearchView_MvvmTag()
 }
