@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8CE406DC2C8D556E00056616 /* ContentView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE406DB2C8D556E00056616 /* ContentView2.swift */; };
 		8CEBF9F92C7FA42000EBB35E /* WordAutoCompletionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CEBF9F82C7FA42000EBB35E /* WordAutoCompletionApp.swift */; };
 		8CEBF9FB2C7FA42000EBB35E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CEBF9FA2C7FA42000EBB35E /* ContentView.swift */; };
 		8CEBF9FD2C7FA42400EBB35E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8CEBF9FC2C7FA42400EBB35E /* Assets.xcassets */; };
@@ -14,6 +15,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		8CE406DB2C8D556E00056616 /* ContentView2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView2.swift; sourceTree = "<group>"; };
 		8CEBF9F52C7FA42000EBB35E /* WordAutoCompletion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WordAutoCompletion.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8CEBF9F82C7FA42000EBB35E /* WordAutoCompletionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordAutoCompletionApp.swift; sourceTree = "<group>"; };
 		8CEBF9FA2C7FA42000EBB35E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -53,6 +55,7 @@
 			children = (
 				8CEBF9F82C7FA42000EBB35E /* WordAutoCompletionApp.swift */,
 				8CEBF9FA2C7FA42000EBB35E /* ContentView.swift */,
+				8CE406DB2C8D556E00056616 /* ContentView2.swift */,
 				8CEBF9FC2C7FA42400EBB35E /* Assets.xcassets */,
 				8CEBF9FE2C7FA42400EBB35E /* Preview Content */,
 			);
@@ -137,6 +140,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8CE406DC2C8D556E00056616 /* ContentView2.swift in Sources */,
 				8CEBF9FB2C7FA42000EBB35E /* ContentView.swift in Sources */,
 				8CEBF9F92C7FA42000EBB35E /* WordAutoCompletionApp.swift in Sources */,
 			);

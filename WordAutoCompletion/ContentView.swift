@@ -7,169 +7,141 @@
 
 import SwiftUI
 
-// maybe you dont need a selectedcontacts, just use the selected property
-// NEXT STEP, TO CREATE A TEXT WITH COMPLETIONS AND NOT A LIST ()REGEX POSSIBLY
-
 struct ContentView: View {
     @ObservedObject var viewModel = ContentViewModel()
-    @FocusState var textFieldIsFocused: Bool
+    @FocusState var isTextFieldFocused: Bool
     
     var body: some View {
-        List {
-            
-            Image("test")
-                .resizable()
-                .scaledToFill()
-                .frame(height: 200)
-                .listRowInsets(EdgeInsets())
-            
-            
-            Section{
-                TextField("", text: $viewModel.searchText, prompt: Text("Test"))
-                    .onChange(of: viewModel.searchText) { _ in
-                        viewModel.updateSearchResults()
-                    }
-                    .focused($textFieldIsFocused)
-                    .autocorrectionDisabled(true)
-                    .onSubmit{
-                        textFieldIsFocused = true
-                        
-                        // move to viewcontroller
-                        if let firstResult = viewModel.searchResults.first,
-                           let index = viewModel.contacts.firstIndex(where: { $0.id == firstResult.id }) {
-                            
-                            viewModel.selectedContacts.append(firstResult)
-                            viewModel.contacts[index].selected = true
-                            viewModel.resetSearchText()
-                            
+        NavigationStack{
+            Form {
+                Section {
+                    Text(viewModel.formattedSelectedContacts)
+                        .foregroundStyle(.tint)
+                } header: {
+                    Text("Formatted Results")
+                }
+                
+                Section {
+                    TextField("", text: $viewModel.searchQuery, prompt: Text("Enter text"))
+                        .onChange(of: viewModel.searchQuery) {
+                            viewModel.updateFilteredContacts()
                         }
-                    }
-            }  header: {
-                Text("Input")
-            }
-            
-            Section{
-                Text(viewModel.formattedResults)
-                
-            } header: {
-                Text("Results")
-            }
-            
-            
-            
-            
-            Section{
-                ForEach(viewModel.searchResults, id: \.self){ contact in
-                    Text(contact.name)
-                        .foregroundStyle(contact.selected == true ? Color(uiColor: .secondaryLabel) : Color(uiColor: .label))
-                }
-                .overlay {
-                    if viewModel.searchResults.isEmpty {
-                        // Custom unavailable view
-                        ContentUnavailableView
-                            .search(text: viewModel.searchText )
-                            .background(Color(UIColor.systemGroupedBackground))
-                    }
+                        .focused($isTextFieldFocused)
+                        .autocorrectionDisabled(true)
+                        .onSubmit {
+                            isTextFieldFocused = true
+                            
+                            // Move to viewController
+                            if let firstResult = viewModel.filteredContacts.first,
+                               let contactIndex = viewModel.allContacts.firstIndex(where: { $0.id == firstResult.id }) {
+                                
+                                viewModel.allContacts[contactIndex].isSelected = true
+                                viewModel.resetSearchQuery()
+                            }
+                        }
+                } header: {
+                    Text("Search")
                 }
                 
-            } header: {
-                Text("Contacts")
+                Section {
+                    ForEach(viewModel.filteredContacts, id: \.self) { contact in
+                        Text(contact.name)
+                            .foregroundStyle(contact.isSelected ? Color(uiColor: .secondaryLabel) : Color(uiColor: .label))
+                    }
+                } header: {
+                    Text("Contacts")
+                }
             }
-            
-            
+            .listSectionSpacing(.compact)
+            .navigationTitle("Autocomplete Search")
+            .toolbar {
+                ToolbarItemGroup(placement: .automatic) {
+                    Button {
+                        viewModel.clearSelectedContacts()
+                    } label: {
+                        Image(systemName: "repeat")
+                    }
+                }
+            }
         }
-        
-        
-        .navigationTitle("Text Autocomplete")
     }
-        
-    
 }
 
 struct Contact: Hashable, Comparable {
     var id = UUID()
     var name: String
-    var selected: Bool
+    var isSelected: Bool
     
     func contains(_ query: String) -> Bool {
         return name.lowercased().contains(query.lowercased())
     }
     
-    static func <(lhs: Self, rhs: Self) -> Bool {
-        (lhs.selected ? 1:0) < (rhs.selected ? 1:0)
+    static func < (lhs: Self, rhs: Self) -> Bool {
+        (lhs.isSelected ? 1 : 0) < (rhs.isSelected ? 1 : 0)
     }
 }
 
-extension Contact{
+extension Contact {
     static var samples: [Contact] {
         return [
-            Contact(name: "Rachel Green", selected: false),
-            Contact(name: "Phoebe Buffay", selected: false),
-            Contact(name: "Chandler Bing", selected: false),
-            Contact(name: "Ross Geller", selected: false),
-            Contact(name: "Monica Geller", selected: false),
-            Contact(name: "Joey Tribbiani", selected: false)
+            Contact(name: "Rachel Green", isSelected: false),
+            Contact(name: "Phoebe Buffay", isSelected: false),
+            Contact(name: "Chandler Bing", isSelected: false),
+            Contact(name: "Ross Geller", isSelected: false),
+            Contact(name: "Monica Geller", isSelected: false),
+            Contact(name: "Joey Tribbiani", isSelected: false)
         ]
     }
 }
 
-extension ContentView{
-    class ContentViewModel: ObservableObject{
-        @Published var searchText = ""
-        var formattedResults: String {
+extension ContentView {
+    class ContentViewModel: ObservableObject {
+        @Published var searchQuery = ""
+        var formattedSelectedContacts: String {
+            let selectedContacts = allContacts.filter({ $0.isSelected })
             let names = selectedContacts.map { $0.name }
-            if let string = formatter.string(from: names) {
-                return string
-            } else {
-                return ""
-            }
+            return formatter.string(from: names) ?? ""
         }
-        @Published var isSearchPresented = true
-        @Published var contacts: [Contact] = Contact.samples
-        @Published var searchResults: [Contact] = []
-        @Published var selectedContacts: [Contact] = []
+        @Published var allContacts: [Contact] = Contact.samples
+        @Published var filteredContacts: [Contact] = []
         let formatter = ListFormatter()
 
-
-//        func createString(){
-//            let names = selectedContacts.map { $0.name }
-//            if let string = formatter.string(from: names) {
-//                formattedResults = string
-//            }
-//        }
-        
-        init(){
-            fetchSearchResults()
+        init() {
+            fetchFilteredContacts()
         }
         
-        func fetchSearchResults() {
-            searchResults = contacts
+        func fetchFilteredContacts() {
+            filteredContacts = allContacts
         }
         
-        func updateSearchResults() {
-            let query = searchText.lowercased()
+        func updateFilteredContacts() {
+            let query = searchQuery.lowercased()
             
-            if searchText.isEmpty{
+            if searchQuery.isEmpty {
                 withAnimation(.snappy) {
-                    searchResults = contacts.sorted()
+                    filteredContacts = allContacts.sorted()
                 }
             } else {
                 withAnimation {
-                    searchResults = contacts.filter { contact in
-                        contact.contains(query)
-                    }
+                    filteredContacts = allContacts.filter { $0.contains(query) }
                 }
             }
         }
         
-        func resetSearchText() {
-            searchText = ""
+        func resetSearchQuery() {
+            searchQuery = ""
+        }
+        
+        func clearSelectedContacts() {
+            withAnimation {
+                for index in allContacts.indices {
+                    allContacts[index].isSelected = false
+                }
+            }
         }
     }
 }
 
 #Preview {
-    NavigationStack{
-        ContentView()
-    }
+    ContentView()
 }
