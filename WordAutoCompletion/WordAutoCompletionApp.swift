@@ -11,7 +11,7 @@ import SwiftUI
 struct WordAutoCompletionApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SearchView_PropertybasedSelection()
         }
     }
 }

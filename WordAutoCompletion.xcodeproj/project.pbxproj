@@ -7,18 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8CE406DC2C8D556E00056616 /* ContentView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE406DB2C8D556E00056616 /* ContentView2.swift */; };
+		8C7059A22C929B20001A09C2 /* SearchView_1_1_2_MultipleSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C7059A12C929B20001A09C2 /* SearchView_1_1_2_MultipleSearch.swift */; };
+		8CE406DC2C8D556E00056616 /* SearchView_1_1_DualArraySelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE406DB2C8D556E00056616 /* SearchView_1_1_DualArraySelection.swift */; };
 		8CEBF9F92C7FA42000EBB35E /* WordAutoCompletionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CEBF9F82C7FA42000EBB35E /* WordAutoCompletionApp.swift */; };
-		8CEBF9FB2C7FA42000EBB35E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CEBF9FA2C7FA42000EBB35E /* ContentView.swift */; };
+		8CEBF9FB2C7FA42000EBB35E /* SearchView_1_0_PropertybasedSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CEBF9FA2C7FA42000EBB35E /* SearchView_1_0_PropertybasedSelection.swift */; };
 		8CEBF9FD2C7FA42400EBB35E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8CEBF9FC2C7FA42400EBB35E /* Assets.xcassets */; };
 		8CEBFA002C7FA42400EBB35E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8CEBF9FF2C7FA42400EBB35E /* Preview Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		8CE406DB2C8D556E00056616 /* ContentView2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView2.swift; sourceTree = "<group>"; };
+		8C7059A12C929B20001A09C2 /* SearchView_1_1_2_MultipleSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView_1_1_2_MultipleSearch.swift; sourceTree = "<group>"; };
+		8CE406DB2C8D556E00056616 /* SearchView_1_1_DualArraySelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView_1_1_DualArraySelection.swift; sourceTree = "<group>"; };
 		8CEBF9F52C7FA42000EBB35E /* WordAutoCompletion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WordAutoCompletion.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8CEBF9F82C7FA42000EBB35E /* WordAutoCompletionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordAutoCompletionApp.swift; sourceTree = "<group>"; };
-		8CEBF9FA2C7FA42000EBB35E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		8CEBF9FA2C7FA42000EBB35E /* SearchView_1_0_PropertybasedSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView_1_0_PropertybasedSelection.swift; sourceTree = "<group>"; };
 		8CEBF9FC2C7FA42400EBB35E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8CEBF9FF2C7FA42400EBB35E /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -54,8 +56,9 @@
 			isa = PBXGroup;
 			children = (
 				8CEBF9F82C7FA42000EBB35E /* WordAutoCompletionApp.swift */,
-				8CEBF9FA2C7FA42000EBB35E /* ContentView.swift */,
-				8CE406DB2C8D556E00056616 /* ContentView2.swift */,
+				8CEBF9FA2C7FA42000EBB35E /* SearchView_1_0_PropertybasedSelection.swift */,
+				8CE406DB2C8D556E00056616 /* SearchView_1_1_DualArraySelection.swift */,
+				8C7059A12C929B20001A09C2 /* SearchView_1_1_2_MultipleSearch.swift */,
 				8CEBF9FC2C7FA42400EBB35E /* Assets.xcassets */,
 				8CEBF9FE2C7FA42400EBB35E /* Preview Content */,
 			);
@@ -140,8 +143,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8CE406DC2C8D556E00056616 /* ContentView2.swift in Sources */,
-				8CEBF9FB2C7FA42000EBB35E /* ContentView.swift in Sources */,
+				8CE406DC2C8D556E00056616 /* SearchView_1_1_DualArraySelection.swift in Sources */,
+				8C7059A22C929B20001A09C2 /* SearchView_1_1_2_MultipleSearch.swift in Sources */,
+				8CEBF9FB2C7FA42000EBB35E /* SearchView_1_0_PropertybasedSelection.swift in Sources */,
 				8CEBF9F92C7FA42000EBB35E /* WordAutoCompletionApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

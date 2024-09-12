@@ -5,6 +5,11 @@
 //  Created by Ricardo on 28/08/24.
 //
 
+// This implementation uses a single list of Contact objects where each contact has a isSelected property to determine if it’s selected.
+
+// less complexity, less performance as the complete list of contacts is filtered*
+
+
 import SwiftUI
 
 struct SearchView_PropertybasedSelection: View {
@@ -18,7 +23,7 @@ struct SearchView_PropertybasedSelection: View {
                     Text(viewModel.formattedSelectedContacts)
                         .foregroundStyle(.tint)
                 } header: {
-                    Text("Selections")
+                    Text("Formatted Results")
                 }
                 
                 
