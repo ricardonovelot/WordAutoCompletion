@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct SearchView_PropertybasedSelection: View {
     @ObservedObject var viewModel = ContentViewModel()
     @FocusState var isTextFieldFocused: Bool
     
@@ -18,8 +18,9 @@ struct ContentView: View {
                     Text(viewModel.formattedSelectedContacts)
                         .foregroundStyle(.tint)
                 } header: {
-                    Text("Formatted Results")
+                    Text("Selections")
                 }
+                
                 
                 Section {
                     TextField("", text: $viewModel.searchQuery, prompt: Text("Enter text"))
@@ -30,32 +31,28 @@ struct ContentView: View {
                         .autocorrectionDisabled(true)
                         .onSubmit {
                             isTextFieldFocused = true
-                            
-                            // Move to viewController
-                            if let firstResult = viewModel.filteredContacts.first,
-                               let contactIndex = viewModel.allContacts.firstIndex(where: { $0.id == firstResult.id }) {
-                                
-                                viewModel.allContacts[contactIndex].isSelected = true
-                                viewModel.resetSearchQuery()
-                            }
+                            viewModel.selectFirstSearchResult()
                         }
                 } header: {
                     Text("Search")
                 }
                 
+                
                 Section {
-                    ForEach(viewModel.filteredContacts, id: \.self) { contact in
+                    List(viewModel.filteredContacts) { contact in
                         Text(contact.name)
                             .foregroundStyle(contact.isSelected ? Color(uiColor: .secondaryLabel) : Color(uiColor: .label))
                     }
                 } header: {
-                    Text("Contacts")
+                    Text("Suggestions")
                 }
+                
+                
             }
             .listSectionSpacing(.compact)
             .navigationTitle("Autocomplete Search")
             .toolbar {
-                ToolbarItemGroup(placement: .automatic) {
+                ToolbarItem(placement: .automatic) {
                     Button {
                         viewModel.clearSelectedContacts()
                     } label: {
@@ -67,7 +64,7 @@ struct ContentView: View {
     }
 }
 
-struct Contact: Hashable, Comparable {
+struct Contact: Hashable, Comparable, Identifiable {
     var id = UUID()
     var name: String
     var isSelected: Bool
@@ -94,7 +91,7 @@ extension Contact {
     }
 }
 
-extension ContentView {
+extension SearchView_PropertybasedSelection {
     class ContentViewModel: ObservableObject {
         @Published var searchQuery = ""
         var formattedSelectedContacts: String {
@@ -104,6 +101,7 @@ extension ContentView {
         }
         @Published var allContacts: [Contact] = Contact.samples
         @Published var filteredContacts: [Contact] = []
+        
         let formatter = ListFormatter()
 
         init() {
@@ -111,7 +109,9 @@ extension ContentView {
         }
         
         func fetchFilteredContacts() {
-            filteredContacts = allContacts
+            withAnimation {
+                filteredContacts = allContacts
+            }
         }
         
         func updateFilteredContacts() {
@@ -138,10 +138,21 @@ extension ContentView {
                     allContacts[index].isSelected = false
                 }
             }
+            updateFilteredContacts()
         }
+        
+        func selectFirstSearchResult(){
+            if let firstResult = filteredContacts.first,
+               let contactIndex = allContacts.firstIndex(where: { $0.id == firstResult.id }) {
+                
+                allContacts[contactIndex].isSelected = true
+            }
+            resetSearchQuery()
+        }
+        
     }
 }
 
 #Preview {
-    ContentView()
+    SearchView_PropertybasedSelection()
 }

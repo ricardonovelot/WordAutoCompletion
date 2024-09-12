@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SearchView_MvvmTag: View {
+struct SearchView_DualArraySelection: View {
     @ObservedObject var viewModel = ContactViewModel()
     @FocusState var textFieldIsFocused: Bool
     
@@ -22,7 +22,7 @@ struct SearchView_MvvmTag: View {
                 }
                 
                 Section {
-                    TextField("", text: $viewModel.searchQuery, prompt: Text("Search"))
+                    TextField("", text: $viewModel.searchQuery, prompt: Text("Start Typing Here"))
                         .onChange(of: viewModel.searchQuery) {
                             viewModel.filterContactsBySearchQuery()
                         }
@@ -30,17 +30,10 @@ struct SearchView_MvvmTag: View {
                         .autocorrectionDisabled(true)
                         .onSubmit {
                             textFieldIsFocused = true
-                            
-                            if let firstResult = viewModel.filteredUnselectedContacts.first,
-                               let index = viewModel.unselectedContacts.firstIndex(where: { $0.id == firstResult.id }) {
-                                viewModel.unselectedContacts.remove(at: index)
-                                viewModel.selectedContacts.append(firstResult)
-                                viewModel.updateFormattedResults()
-                                viewModel.resetSearchQuery()
-                            }
+                            viewModel.selectFirstSearchResult()
                         }
                 } header: {
-                    Text("Input")
+                    Text("Search")
                 }
                 
                 Section {
@@ -58,13 +51,11 @@ struct SearchView_MvvmTag: View {
             }
             
             .listSectionSpacing(.compact)
-            .navigationTitle("Autocomplete Search")
+            .navigationTitle("Search Suggestions")
             .toolbar {
                 ToolbarItemGroup(placement: .automatic) {
-                    Button {
-                        viewModel.resetAllContacts()
-                    } label: {
-                        Image(systemName: "repeat")
+                    Button(action: viewModel.resetAllContacts){
+                        Label("Reset", systemImage: "repeat")
                     }
                 }
             }
@@ -94,11 +85,12 @@ extension Contact2 {
     }
 }
 
-extension SearchView_MvvmTag {
+extension SearchView_DualArraySelection {
     class ContactViewModel: ObservableObject {
         @Published var searchQuery = ""
         @Published var formattedContactList = ""
         @Published var isSearchPresented = true
+        @Published var showLearnMoreSheet: Bool = false
         @Published var unselectedContacts: [Contact2] = Contact2.samples
         @Published var selectedContacts: [Contact2] = []
         @Published var filteredUnselectedContacts: [Contact2] = []
@@ -111,7 +103,6 @@ extension SearchView_MvvmTag {
                 withAnimation {
                     formattedContactList = string
                 }
-                
             }
         }
         
@@ -152,9 +143,20 @@ extension SearchView_MvvmTag {
                 updateFormattedResults()
             }
         }
+        
+        func selectFirstSearchResult(){
+            if let firstResult = filteredUnselectedContacts.first,
+               let index = unselectedContacts.firstIndex(where: { $0.id == firstResult.id }) {
+                unselectedContacts.remove(at: index)
+                selectedContacts.append(firstResult)
+                updateFormattedResults()
+            }
+            resetSearchQuery()
+        }
+        
     }
 }
 
 #Preview {
-    SearchView_MvvmTag()
+    SearchView_DualArraySelection()
 }
