@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+// Test "Ri" input see the differences in results
+
 struct SearchView_1_1_1_inlineAutocompletion: View {
     @ObservedObject var viewModel = ContactViewModel()
     @FocusState var textFieldIsFocused: Bool
@@ -39,13 +41,10 @@ struct SearchView_1_1_1_inlineAutocompletion: View {
                                     viewModel.selectFirstSearchResult()
                                 }
                                 .keyboardType(.default)
-                                .onKeyPress { keyPress in
-                                    if keyPress.characters == " " { // Detect spacebar
-                                        viewModel.selectFirstSearchResult()
-                                        return .handled
-                                    }
-                                    return .ignored
-                                }
+                                .onKeyPress(.space) {
+                                    viewModel.selectFirstSearchResult()
+                                                return .handled
+                                            }
                         }
                     }
                 } header: {
@@ -99,11 +98,13 @@ extension SearchView_1_1_1_inlineAutocompletion {
     class ContactViewModel: ObservableObject {
         @Published var searchQuery = ""
         @Published var formattedContactList = ""
-        @Published var completionText = "" // Stores the completion
+        @Published var completionText = ""
         @Published var unselectedContacts: [Contact_1_1_1] = Contact_1_1_1.samples
         @Published var selectedContacts: [Contact_1_1_1] = []
         @Published var filteredUnselectedContacts: [Contact_1_1_1] = []
+        @Published var filteredSelectedContacts: [Contact_1_1_1] = []
         let listFormatter = ListFormatter()
+        var query = ""
 
         func updateFormattedResults() {
             let names = selectedContacts.map { $0.name }
@@ -115,15 +116,23 @@ extension SearchView_1_1_1_inlineAutocompletion {
         }
 
         func filterContactsBySearchQuery() {
-            let query = searchQuery.lowercased()
+            query = searchQuery.lowercased()
             
             if query.isEmpty {
                 filteredUnselectedContacts = unselectedContacts
                 completionText = ""
                 return
+            } else {
+                withAnimation {
+                    filteredUnselectedContacts = unselectedContacts.filter { $0.contains(query) }
+                }
             }
 
             // Clear completion if user is deleting characters
+            
+        }
+        
+        func createCompletionText(){
             if completionText.isEmpty || !query.hasSuffix(completionText) {
                 filteredUnselectedContacts = unselectedContacts.filter { $0.contains(query) }
                 if let firstResult = filteredUnselectedContacts.first {

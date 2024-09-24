@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SearchView_DualArraySelection: View {
+struct SearchView_DA_Manual_Selection: View {
     @ObservedObject var viewModel = ContactViewModel()
     @FocusState var textFieldIsFocused: Bool
     
@@ -23,15 +23,18 @@ struct SearchView_DualArraySelection: View {
                 
                 Section {
                     TextField("", text: $viewModel.searchQuery, prompt: Text("Start Typing Here"))
-                        .onChange(of: viewModel.searchQuery) {
-                            viewModel.filterContactsBySearchQuery()
+                        .onChange(of: viewModel.searchQuery) { oldValue, newValue in
+                            if newValue.last == " " { //.onKeyPress(.space) { // Space not working on iOS
+                                viewModel.searchQuery = newValue.trimmingCharacters(in: .whitespaces) // Detect space key but remove trailing space for filtering purposes
+                                viewModel.selectFirstSearchResult()
+                                textFieldIsFocused = true
+                            } else {
+                                viewModel.filterContactsBySearchQuery()
+                            }
                         }
                         .focused($textFieldIsFocused)
                         .autocorrectionDisabled(true)
-                        .onSubmit {
-                            textFieldIsFocused = true
-                            viewModel.selectFirstSearchResult()
-                        }
+                        
                 } header: {
                     Text("Search")
                 }
@@ -63,7 +66,7 @@ struct SearchView_DualArraySelection: View {
     }
 }
 
-struct Contact2: Hashable {
+struct Contact_1_1_4: Hashable {
     var id = UUID()
     var name: String
     
@@ -72,29 +75,29 @@ struct Contact2: Hashable {
     }
 }
 
-extension Contact2 {
-    static var samples: [Contact2] {
+extension Contact_1_1_4 {
+    static var samples: [Contact_1_1_4] {
         return [
-            Contact2(name: "Rachel Green"),
-            Contact2(name: "Phoebe Buffay"),
-            Contact2(name: "Chandler Bing"),
-            Contact2(name: "Ross Geller"),
-            Contact2(name: "Monica Geller"),
-            Contact2(name: "Joey Tribbiani")
+            Contact_1_1_4(name: "Rachel Green"),
+            Contact_1_1_4(name: "Phoebe Buffay"),
+            Contact_1_1_4(name: "Chandler Bing"),
+            Contact_1_1_4(name: "Ross Geller"),
+            Contact_1_1_4(name: "Monica Geller"),
+            Contact_1_1_4(name: "Joey Tribbiani")
         ]
     }
 }
 
-extension SearchView_DualArraySelection {
+extension SearchView_DA_Manual_Selection {
     class ContactViewModel: ObservableObject {
         @Published var searchQuery = ""
         @Published var formattedContactList = ""
         @Published var isSearchPresented = true
         @Published var showLearnMoreSheet: Bool = false
-        @Published var unselectedContacts: [Contact2] = Contact2.samples
-        @Published var selectedContacts: [Contact2] = []
-        @Published var filteredUnselectedContacts: [Contact2] = []
-        @Published var filteredSelectedContacts: [Contact2] = []
+        @Published var unselectedContacts: [Contact_1_1_4] = Contact_1_1_4.samples
+        @Published var selectedContacts: [Contact_1_1_4] = []
+        @Published var filteredUnselectedContacts: [Contact_1_1_4] = []
+        @Published var filteredSelectedContacts: [Contact_1_1_4] = []
         let listFormatter = ListFormatter()
 
         func updateFormattedResults() {
@@ -137,7 +140,7 @@ extension SearchView_DualArraySelection {
         
         func resetAllContacts() {
             withAnimation {
-                unselectedContacts = Contact2.samples
+                unselectedContacts = Contact_1_1_4.samples
                 selectedContacts.removeAll()
                 filterContactsBySearchQuery()
                 updateFormattedResults()
@@ -158,5 +161,7 @@ extension SearchView_DualArraySelection {
 }
 
 #Preview {
-    SearchView_DualArraySelection()
+    SearchView_DA_Manual_Selection()
 }
+
+
